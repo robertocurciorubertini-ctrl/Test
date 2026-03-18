@@ -294,9 +294,25 @@
     }
 
     .chip.level {
+      font-weight: 600;
+    }
+
+    .chip.level.base {
       color: #dffcf4;
-      border-color: rgba(126,240,199,0.2);
-      background: rgba(126,240,199,0.09);
+      border-color: rgba(126,240,199,0.3);
+      background: rgba(126,240,199,0.12);
+    }
+
+    .chip.level.intermedio {
+      color: #fff4dc;
+      border-color: rgba(255,200,120,0.35);
+      background: rgba(255,200,120,0.15);
+    }
+
+    .chip.level.avanzato {
+      color: #ffe0e0;
+      border-color: rgba(255,120,120,0.35);
+      background: rgba(255,120,120,0.15);
     }
 
     .sim-link {
@@ -554,13 +570,10 @@
     }
 
     function renderCard(sim) {
-      const tagsMarkup = (sim.tags || [])
-        .slice(0, 2)
-        .map(tag => `<span class="chip">${escapeHtml(tag)}</span>`)
-        .join("");
+      const tagsMarkup = "";
 
       const levelMarkup = sim.level
-        ? `<span class="chip level">${escapeHtml(levelLabel(sim.level))}</span>`
+        ? `<span class="chip level ${normalize(sim.level)}">${escapeHtml(levelLabel(sim.level))}</span>`
         : "";
 
       return `
@@ -571,7 +584,7 @@
             <p class="sim-desc">${escapeHtml(sim.description)}</p>
             <div class="meta-row">
               ${levelMarkup}
-              ${tagsMarkup}
+              
             </div>
             <span class="sim-link">
               Apri simulazione
