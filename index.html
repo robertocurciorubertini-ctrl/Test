@@ -238,6 +238,12 @@
 
     .card:hover::before { opacity: 1; }
 
+    .sim-card-link {
+      display: block;
+      text-decoration: none;
+      color: inherit;
+    }
+
     .card-content { position: relative; z-index: 1; }
 
     .icon {
@@ -477,9 +483,22 @@
         if (sim?.category) names.add(sim.category);
       });
 
-      const sorted = Array.from(names).sort((a, b) => a.localeCompare(b, "it"));
+      const categoryMap = getCategoryMap(categories);
+      const sorted = Array.from(names)
+        .map(name => {
+          const cat = categoryMap.get(normalize(name)) || {};
+          return {
+            name,
+            order: Number.isFinite(Number(cat.order)) ? Number(cat.order) : 9999
+          };
+        })
+        .sort((a, b) => {
+          if (a.order !== b.order) return a.order - b.order;
+          return a.name.localeCompare(b.name, "it");
+        });
+
       categoryFilter.innerHTML = '<option value="">Tutte le categorie</option>' +
-        sorted.map(name => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join("");
+        sorted.map(item => `<option value="${escapeHtml(item.name)}">${escapeHtml(item.name)}</option>`).join("");
     }
 
     function sortCategories(categories, simulations) {
@@ -536,7 +555,7 @@
 
     function renderCard(sim) {
       const tagsMarkup = (sim.tags || [])
-        .slice(0, 4)
+        .slice(0, 2)
         .map(tag => `<span class="chip">${escapeHtml(tag)}</span>`)
         .join("");
 
@@ -545,7 +564,7 @@
         : "";
 
       return `
-        <article class="card">
+        <a class="card sim-card-link" href="${encodeURI(sim.file)}" aria-label="Apri simulazione ${escapeHtml(sim.title)}">
           <div class="card-content">
             <div class="icon">${escapeHtml(sim.icon)}</div>
             <h2 class="sim-title">${escapeHtml(sim.title)}</h2>
@@ -554,12 +573,12 @@
               ${levelMarkup}
               ${tagsMarkup}
             </div>
-            <a class="sim-link" href="${encodeURI(sim.file)}">
+            <span class="sim-link">
               Apri simulazione
               <span>→</span>
-            </a>
+            </span>
           </div>
-        </article>
+        </a>
       `;
     }
 
@@ -596,7 +615,7 @@
                   <h2 class="category-title">${escapeHtml(category.name)}</h2>
                   ${category.description ? `<p class="category-desc">${escapeHtml(category.description)}</p>` : ""}
                 </div>
-                <div class="category-pill">${sims.length} simulazione${sims.length === 1 ? "" : "i"}</div>
+                <div class="category-pill">${sims.length} simulazion${sims.length === 1 ? "e" : "i"}</div>
               </div>
               <div class="grid">
                 ${sims.map(renderCard).join("")}
